@@ -1,8 +1,9 @@
 ## 一、mysql日志落盘
+```
 show variables like "%general_log%";
 set global general_log=off
 tail -n 50  /var/lib/mysql/andi.log
-
+```
 
 
 ## 二、library调用与被调用
