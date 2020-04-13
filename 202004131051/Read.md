@@ -28,9 +28,12 @@ $Test->test();
 ```
 
 ### 四、主机性能
+```
 top -bn1|grep load|awk '{printf "CPU Load:%2f\n",$(NF-2)}
 free -m|awk 'nr==2{printf "Memory Usage:%s%sMB(%.2f%%)\n"}'
-
+```
 ### 五、监控网卡流量
+```
 watch ifconfig ens33
 watch cat /proc/net/dev
+```
