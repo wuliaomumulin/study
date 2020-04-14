@@ -14,7 +14,7 @@
 */
 try{
 	$NetworkBytes = new NetworkBytes();
-	$NetworkBytes->handle();
+	$NetworkBytes->run();
 
 }catch(\Exception $e){
 	echo $e->getMessage();
@@ -43,11 +43,13 @@ class NetworkBytes{
 	//redis句柄
 	public $redis = Null;
 	//设置抓取网卡名称	
-	public $networkName = 'ens33';	
+	public $networkName = 'eth1';	
 	//操作redis-table的名称
 	public $table = 'network-bytes';
-	//设置队列长度,60个
+	//设置队列长度,30个
 	public $listLen = 30;
+	//抓取单位,KB or MB
+	static private $unit = 'MB';
 
 	//初始化上一秒值为0
 	static private $prev = 0;
@@ -92,7 +94,7 @@ class NetworkBytes{
 	/*
 	  业务操作
 	*/
-	public function handle(){
+	public function run(){
 		//常驻进程
 		while(True){			
 			//沉睡1s，根据服务器性能进行配置，如果性能好的话，去掉即可
@@ -107,25 +109,43 @@ class NetworkBytes{
 	*/
 	private function procducer(){
 		$str = `ifconfig {$this->networkName}`;//指定网卡名称
-		$preg = '/TX packets \d+ +bytes (\d+)/i';//比特位
-		preg_match($preg,$str,$res);
-		$current = intval($res[1]);
+		if(static::$unit == 'MB'){
+			$preg = '/TX packets \d+ +bytes \d+ \((\d+\.\d+) MB\)/i';//MB
+			preg_match($preg,$str,$res);
+			$current = floatval($res[1]);
+			$offset = sprintf("%.1f",$current-static::$prev);
+			//echo 'aaa'.$current.'---'.static::$prev.'---'.$offset.'aaa'.PHP_EOL;
+		}
+
+		if(static::$unit == 'KB'){
+			$preg = '/TX packets \d+ +bytes (\d+)/i';//比特位
+			preg_match($preg,$str,$res);
+			$current = intval($res[1]);
+			$offset = $current-static::$prev;
+		}
 
 		switch (static::$order){
 			case 'asc':
+				//这里需要检测如果使一次，我们创建一个空链表
+				if($this->redis->llen($this->table) == 0){
+					$this->redis->rpush($this->table,0);
+					break;
+				}
+
 				if($this->redis->llen($this->table) == $this->listLen){
 					$this->redis->lpop($this->table);
 				}
-				$this->redis->rpush($this->table,$current-static::$prev);
+
+				$this->redis->rpush($this->table,$offset);
 				break;
 			case 'desc':
 				if($this->redis->llen($this->table) == $this->listLen){
 					$this->redis->rpop($this->table);
 				}
-					$signal = $this->redis->lpushx($this->table,$current-static::$prev);
+				$signal = $this->redis->lpushx($this->table,$offset);
 				//如果是第一次操作，我们创建一个空链表
 				if($signal === 0){
-					$this->redis->lpush($this->table,$current);
+					$this->redis->lpush($this->table,$offset);
 				}
 				break;
 			default:
