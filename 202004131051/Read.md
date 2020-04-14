@@ -1,10 +1,14 @@
-## 一、mysql日志落盘
+## 一、mysql
+### （1）、日志落盘
 ```
 show variables like "%general_log%";
 set global general_log=off
 tail -n 50  /var/lib/mysql/andi.log
 ```
-
+### （2）、sql关联分组查询统计 
+```
+sql_mode = STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+```
 
 ## 二、library调用与被调用
 yaf-library管理
