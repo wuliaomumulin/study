@@ -18,4 +18,11 @@ spl_autoload_register('autoload');
 
 //测试
 new \app\mvc\controller\admin\Index();
+/*
+composer命名自动加载更新命名空间技巧：
+composer dump-autoload # 更新autoload_static.php、autoload_psr4.php、composer.json
+composer dump-autoload -o # classmap，（-o 等同于 --optimize）
+composer dump-autoload -a # 权威classmap
+composer dump-autoload --apcu # APCu cache优化类文件
+ */
 ?>
