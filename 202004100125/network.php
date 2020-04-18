@@ -18,6 +18,7 @@ try{
 
 }catch(\Exception $e){
 	echo $e->getMessage();
+
 }
 
 
@@ -43,7 +44,7 @@ class NetworkBytes{
 	//redis句柄
 	public $redis = Null;
 	//设置抓取网卡名称	
-	public $networkName = 'eth1';	
+	static public $networkName = 'eth5';	
 	//操作redis-table的名称
 	public $table = 'network-bytes';
 	//设置队列长度,30个
@@ -59,6 +60,11 @@ class NetworkBytes{
 	//@params $environ product|develop
 	public function __construct($environ='product'){
 		self::connect(self::config($environ));
+		//网卡
+		$networkName = self::getNetwork();
+		if(!empty($networkName)){
+			self::$networkName = $networkName;
+		}
 	}
 	/*
 	   配置信息
@@ -108,20 +114,28 @@ class NetworkBytes{
 	*	统计网络流量脚本
 	*/
 	private function procducer(){
-		$str = `ifconfig {$this->networkName}`;//指定网卡名称
+		$prev = self::$networkName;
+		$str = `ifconfig {$prev}`;//指定网卡名称
+
+		/*
+			判断设备是否正常
+			为避免CPU做无意义的空转，如果代码有误就关掉该程序
+		*/
+		if(empty($str)) exit();	
+
 		if(static::$unit == 'MB'){
-			$preg = '/TX packets \d+ +bytes \d+ \((\d+\.\d+) MB\)/i';//MB
+			$preg = '/TX packets \d+ +bytes (\d+) /i';//MB
 			preg_match($preg,$str,$res);
-			$current = floatval($res[1]);
-			$offset = sprintf("%.1f",$current-static::$prev);
+			@$current = $res[1];
+			$offset = sprintf("%.1f",($current-static::$prev)/1024/1024);
 			//echo 'aaa'.$current.'---'.static::$prev.'---'.$offset.'aaa'.PHP_EOL;
 		}
 
 		if(static::$unit == 'KB'){
 			$preg = '/TX packets \d+ +bytes (\d+)/i';//比特位
 			preg_match($preg,$str,$res);
-			$current = intval($res[1]);
-			$offset = $current-static::$prev;
+			$current = $res[1];
+			$offset = round(($current-static::$prev)/1024);
 		}
 
 		switch (static::$order){
@@ -158,5 +172,26 @@ class NetworkBytes{
 
 	}
 
+	/*
+     * 访问网卡
+     * return 网卡名称或者空
+     * */
+    private function getNetwork()
+    {
+        $curl = curl_init();
+        //http://locahost:8080/interface/edit?type=interface
+        curl_setopt($curl, CURLOPT_URL, 'http://127.0.0.1/api.php/configsystem/service');
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        $data = json_decode(curl_exec($curl),255);
+
+        curl_close($curl);
+
+        //
+        if(isset($data['data']['interface_port']) and !empty($data['data']['interface_port'])){
+        	return $data['data']['interface_port'];
+        }else{
+        	return '';
+        }
+    }
 }
 ?>
