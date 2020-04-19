@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Plays>
+    <play>
+        <title id="001">rabits</title>
+        <author>tom</author>
+        <date>2015.1.2</date>
+        <addr>Beijing Fengtai Juyuan</addr>
+        <detail>
+        	<age>12</age>
+        	<sex>男</sex>
+        </detail>
+    </play>
+    <play>
+        <title id="002">Mom's Love</title>
+        <author>Jim</author>
+        <date>2015.4.5</date>
+        <addr>Beijing haiding Juyuan</addr>
+        <detail>
+        	<age>18</age>
+        	<sex>女</sex>
+        </detail>        
+    </play>
+</Plays>
