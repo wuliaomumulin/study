@@ -19,6 +19,13 @@ rabbitmqctl reset #清除应用
 rabbitmqctl start_app #启动应用
 ```
 ### 二、以普通用户执行管理员权限允许执行的命令
+#### 1、复制管理员权限，重命名为业务用户,使业务用户可以通过脚本执行sudo命令
 ```
-echo "password" | sudo -S sh -c "cat /etc/hosts"
+# User privilege specification
+root    ALL=(ALL:ALL) ALL
+liyb    ALL=(ALL:ALL) ALL
+```
+#### 2、业务shell
+```
+echo "password" | sudo -S cat /etc/sudoers
 ```
