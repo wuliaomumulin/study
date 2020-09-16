@@ -35,3 +35,17 @@ php bin/hyperf.php gen:listener SendSmsListener
  *
 ```
 ### 九、命令行
+```
+dirname(__DIR__,1)//上前目录的上一级
+```
+### 十、模型缓存
+```
+php bin/hyperf.php gen:model //更新缓存模型，会将数据库的表更新到本地模型缓存文件
+```
+1、缺少hyperf/model-cache
+2、缺少hyperf/task
+### 十一、task组件
+### 十二、cache
+```
+flushdb //清空redis
+```
