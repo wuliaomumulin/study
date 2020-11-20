@@ -5,11 +5,8 @@ require_once 'PDO.class.php';
 
 /**
 * 将mysql变为时序数据库
-
 */
 class TimeLine extends DB{
-
-
 	/**
 	* 
 	* 和Es对应的查询索引
@@ -31,7 +28,7 @@ class TimeLine extends DB{
 	* @param $fields String 查询字段
 	* @param $hidden_table Bool 隐藏数据表名称
 	*/
-	public function batchQuery(Array $tables,String $fields = '*',$hidden_table=false){
+	public function batchQuery(Array $tables,String $fields = '*',Bool $hidden_table=false){
 		$ret = [];
 		foreach($tables as $table){
 			$strSql = "select {$fields} from {$table}";
@@ -52,44 +49,48 @@ class TimeLine extends DB{
 		return $ret;
 
 	}
-}
+
+	/**
+	* 批量插入
+	* @param $data Array 二维数组或一维数组，key=>val结构
+	* @param $template Array 表名和表sql
+	* @param $standard String 判断标准
+	*/
+	public function batchInsert(Array $data,Array $template,String $standard){
+
+		if(is_int($this->execSql($template['sql']))){
+
+			//$this->debug = true;
 
 
+			//判断是否一维数组
 
-//$db = new DB("127.0.0.1","root",'phpcj','test','utf8');
-$db = DB::getInstance("127.0.0.1","root",'phpcj','test','utf8');
-//$tables = $db->getTables('select * from tb_user');
-$tables = $db->getTables('sys_user%');
-$data = $db->batchQuery($tables,'*',true);
-var_dump($data);
+			if(count($data) == count($data,1)){
+				//一维数组
+				return $this->insert($template['table'],$data);
 
-print($db->destruct());
+			}else{
+				//多维数组				
+				return $this->insertCluster($template['table'],$data);
+				//return $this->replaceCluster($template['table'],$data);
+			}
+		}
 
-
-
-/*class A{
-
-	public function __construct(){
-		echo 'init';
-	}
-	
-	public function aa(){
-		return __METHOD__;
-	}
-
-}
-
-class B extends A{
-
-
-
-	public function bb(){
-		return __METHOD__;
 	}
 
+	/**
+	* 解析当前表名称
+	* @param $standard String 判断标准
+	*/
+	private function parseTableName(String $standard){
+		/*if(is_numeric($standard)){
+			exit('数字');
+		}else{
+			exit('string');
+		}*/
+	}
+
+
 }
 
-$B = new B();
-echo $B->aa();
-echo $B->bb();*/
 ?>
