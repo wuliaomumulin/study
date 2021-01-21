@@ -1,5 +1,5 @@
 ## win10代理，需要用管理员账号运行cmd
-###.输入映射命令
+### 输入映射命令
 netsh interface portproxy add v4tov4 listenport=10001 listenaddress=0.0.0.0 connectport=50070 connectaddress=192.168.163.143
 ### 查看所有监听的映射命令
 netsh interface portproxy show all
