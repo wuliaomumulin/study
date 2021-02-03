@@ -1,0 +1,9 @@
+#name info 
+
+My name is wugangke
+
+This is my first script!
+
+192.10.1.11
+
+192.10
