@@ -1,0 +1,65 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<script src="https://19.19.19.70/jquery.min.js"></script>
+<body>
+
+<p>hello,websocket!</p>
+<div class="container">
+    <div>
+        <p>info below</p>
+        <ul  id="line">
+         </ul>
+    </div>
+    <div>
+        
+        <label>控制器:</label>
+        <input type="text" id="controller">
+        <label>方法:</label>
+        <input type="text" id="action">
+        <label>参数:</label>
+        <input type="textarea" id="params">
+        <button onclick="say()">发送</button>
+        <button onclick="ping()">ping</button>
+    </div>
+</div>
+</body>
+<script>
+    var wsServer = 'ws://19.19.19.70:9501';
+    var websocket = new WebSocket(wsServer);
+    window.onload = function () {
+        websocket.onopen = function (evt) {
+            addLine("Connected to WebSocket server.");
+        };
+         websocket.onclose = function (evt) {
+            addLine("Disconnected");
+        };
+         websocket.onmessage = function (evt) {
+            addLine('Retrieved data from server: ' + evt.data);
+        };
+         websocket.onerror = function (evt, e) {
+            addLine('Error occured: ' + evt.data);
+        };
+    };
+    function addLine(data) {
+        $("#line").append("<li>"+data+"</li>");
+    }
+    function say() {
+        var controller = $("#controller").val();
+        var action = $("#action").val();
+        var params = $("#params").val();
+        websocket.send(JSON.stringify({
+            controller:controller,
+            action:action,
+            params:params
+        }));
+    }
+    function ping() {
+        var controller = $("#controller").val();
+        var action = $("#action").val();
+        var params = $("#params").val();
+        websocket.send('PING');
+    }
+</script>
+</html>
