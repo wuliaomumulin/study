@@ -1,0 +1,6 @@
+{{template "baseblock.tmpl"}}
+
+{{define "content"}}
+    <div>继承自baseblock.tmpl!</div>
+    <h5>template.New("test").Delims("{[", "]}").ParseFiles("./t.tmpl")//修改默认的标识符</h5>
+{{end}}
